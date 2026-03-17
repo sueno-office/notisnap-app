@@ -1,3 +1,10 @@
+// ========== Notion API ベースURL（CORSプロキシ対応） ==========
+function notionUrl(path) {
+  const proxy = localStorage.getItem('ns_notionProxy') || '';
+  const base = proxy.replace(/\/$/, '') || 'https://api.notion.com';
+  return base + path;
+}
+
 // ========== ストレージ（localStorage wrapper） ==========
 const storage = {
   async get(keys) {
@@ -790,7 +797,7 @@ async function submitToNotion() {
   if (bodyText) pageBody.children = markdownToNotionBlocks(bodyText);
 
   try {
-    const response = await fetch('https://api.notion.com/v1/pages', {
+    const response = await fetch(notionUrl('/v1/pages'), {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -858,6 +865,16 @@ async function renderSettings() {
     await storage.get(['apiKey', 'geminiApiKey', 'databases', 'historyCount', 'saveHistory']);
 
   content.innerHTML = `
+    <!-- CORSプロキシ -->
+    <div class="section">
+      <h2>CORSプロキシURL</h2>
+      <label>Cloudflare Worker URL（ブラウザからNotionにアクセスするために必要）</label>
+      <input type="text" id="s-proxy-url" placeholder="https://xxx.workers.dev" value="${escapeHtml(localStorage.getItem('ns_notionProxy') || '')}">
+      <p class="hint">未設定の場合は直接アクセス（CORSエラーになる場合があります）</p>
+      <div class="save-row"><button class="btn btn-primary btn-sm" id="s-save-proxy-btn">保存</button></div>
+      <div id="s-proxy-status" class="status-msg"></div>
+    </div>
+
     <!-- Notion APIキー -->
     <div class="section">
       <h2>Notion APIキー</h2>
@@ -941,6 +958,14 @@ function showSettingsStatus(elId, message, type) {
 }
 
 function setupSettingsListeners() {
+  // CORSプロキシURL保存
+  document.getElementById('s-save-proxy-btn').addEventListener('click', () => {
+    const url = document.getElementById('s-proxy-url').value.trim();
+    if (url) localStorage.setItem('ns_notionProxy', url);
+    else localStorage.removeItem('ns_notionProxy');
+    showSettingsStatus('s-proxy-status', '保存しました', 'success');
+  });
+
   // Notion APIキー保存
   document.getElementById('s-save-key-btn').addEventListener('click', async () => {
     const key = document.getElementById('s-api-key').value.trim();
@@ -1007,7 +1032,7 @@ function setupSettingsListeners() {
         const rawId = check.value.replace(/-/g, '');
         const fId = `${rawId.slice(0,8)}-${rawId.slice(8,12)}-${rawId.slice(12,16)}-${rawId.slice(16,20)}-${rawId.slice(20)}`;
         if (dbs.some(d => d.id === fId)) { skipped++; continue; }
-        const res = await fetch(`https://api.notion.com/v1/databases/${fId}`, {
+        const res = await fetch(`${notionUrl(`/v1/databases/${fId}`)}`, {
           headers: { 'Authorization': `Bearer ${apiKey}`, 'Notion-Version': '2022-06-28' }
         });
         if (!res.ok) continue;
@@ -1036,7 +1061,7 @@ function setupSettingsListeners() {
     if (!apiKey) { showSettingsStatus('s-db-status', '先にAPIキーを保存してください', 'error'); return; }
     showSettingsStatus('s-db-status', '読み込み中...', 'info');
     try {
-      const res = await fetch(`https://api.notion.com/v1/databases/${fId}`, {
+      const res = await fetch(`${notionUrl(`/v1/databases/${fId}`)}`, {
         headers: { 'Authorization': `Bearer ${apiKey}`, 'Notion-Version': '2022-06-28' }
       });
       if (!res.ok) { const err = await res.json(); showSettingsStatus('s-db-status', `エラー: ${err.message || res.status}`, 'error'); return; }
@@ -1110,7 +1135,7 @@ function renderSettingsDbList(databases) {
       if (!apiKey) { showSettingsStatus('s-fetch-status', '先にAPIキーを保存してください', 'error'); return; }
       btn.disabled = true;
       try {
-        const res = await fetch(`https://api.notion.com/v1/databases/${btn.dataset.id}`, {
+        const res = await fetch(`${notionUrl(`/v1/databases/${btn.dataset.id}`)}`, {
           headers: { 'Authorization': `Bearer ${apiKey}`, 'Notion-Version': '2022-06-28' }
         });
         if (!res.ok) { const err = await res.json(); throw new Error(err.message || res.status); }
@@ -1187,7 +1212,7 @@ async function fetchAllDatabases(apiKey) {
   do {
     const body = { filter: { value: 'database', property: 'object' }, page_size: 100 };
     if (cursor) body.start_cursor = cursor;
-    const res = await fetch('https://api.notion.com/v1/search', {
+    const res = await fetch(notionUrl('/v1/search'), {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${apiKey}`, 'Notion-Version': '2022-06-28', 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
