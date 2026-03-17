@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#2383e2">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Notisnap</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============ フォームビュー ============ -->
+  <div id="form-view" class="view">
+    <header class="app-header">
+      <span class="app-title">Notisnap</span>
+      <select id="db-select"></select>
+      <button class="icon-btn" id="settings-btn" title="設定">⚙</button>
+    </header>
+
+    <div class="preset-bar">
+      <div id="preset-chips" class="preset-chips"></div>
+      <button class="btn-ghost-xs" id="save-preset-btn" title="プリセット保存">＋</button>
+    </div>
+
+    <div class="form-scroll" id="form-area"></div>
+
+    <div class="app-footer">
+      <div id="status-bar" class="status-bar"></div>
+      <div class="footer-btns">
+        <button class="btn btn-secondary" id="clear-btn">クリア</button>
+        <button class="btn btn-primary" id="submit-btn">Notionに追加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 設定ビュー ============ -->
+  <div id="settings-view" class="view" style="display:none">
+    <header class="app-header">
+      <button class="icon-btn" id="back-btn">←</button>
+      <span class="app-title">設定</span>
+    </header>
+    <div class="settings-scroll" id="settings-content"></div>
+  </div>
+
+  <!-- ============ プリセットダイアログ ============ -->
+  <div id="preset-dialog" class="dialog-overlay hidden">
+    <div class="dialog-box">
+      <div class="dialog-title">プリセット名</div>
+      <input type="text" id="preset-name-input" placeholder="プリセット名">
+      <div class="dialog-btns">
+        <button class="btn btn-secondary" id="cancel-preset">キャンセル</button>
+        <button class="btn btn-primary" id="confirm-preset">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

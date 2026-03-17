@@ -1,0 +1,478 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #fff;
+  color: #37352f;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========== ビュー ========== */
+.view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ========== ヘッダー ========== */
+.app-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e9e9e7;
+  gap: 8px;
+  flex-shrink: 0;
+  background: #fff;
+}
+.app-title { font-size: 16px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+.app-header select {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid #e9e9e7;
+  border-radius: 6px;
+  font-size: 13px;
+  background: #f7f7f5;
+  color: #37352f;
+  outline: none;
+}
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  color: #9b9a97;
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+  min-width: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-btn:active { background: #f0f0ef; color: #37352f; }
+
+/* ========== プリセットバー ========== */
+.preset-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e9e9e7;
+  flex-shrink: 0;
+}
+.preset-chips {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.btn-ghost-xs {
+  background: none;
+  border: 1px solid #e9e9e7;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #9b9a97;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.btn-ghost-xs:active { background: #f0f0ef; color: #37352f; }
+
+/* プリセットチップ */
+.preset-chip {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  border: 1px solid #e9e9e7;
+  border-radius: 5px;
+  font-size: 11px;
+  cursor: pointer;
+  background: #fff;
+  color: #37352f;
+  text-align: left;
+  transition: background 0.1s;
+  touch-action: none;
+}
+.preset-chip:active { background: #f0f0ef; }
+.preset-chip.active { background: #2383e2; color: #fff; border-color: #2383e2; }
+.preset-chip-inner { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.preset-chip-name { font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.preset-db-badge {
+  font-size: 9px; background: #e9e9e7; padding: 1px 4px;
+  border-radius: 6px; color: #9b9a97; align-self: flex-start;
+}
+.preset-chip.active .preset-db-badge { background: rgba(255,255,255,0.25); color: rgba(255,255,255,0.85); }
+.preset-drag-handle { font-size: 11px; color: #c0c0be; cursor: grab; flex-shrink: 0; padding: 0 2px; }
+.preset-chip.active .preset-drag-handle { color: rgba(255,255,255,0.6); }
+.preset-chip.drag-over { border-color: #2383e2; background: #e8f0fe; }
+.preset-chip.dragging { opacity: 0.4; }
+.del-chip { font-size: 13px; line-height: 1; opacity: 0.5; cursor: pointer; flex-shrink: 0; }
+.del-chip:active { opacity: 1; }
+
+/* ========== フォームエリア ========== */
+.form-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 12px;
+}
+
+/* フィールド */
+.field {
+  margin-bottom: 10px;
+  border: 1px solid #e9e9e7;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+}
+.field-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  background: #f7f7f5;
+  border-bottom: 1px solid #e9e9e7;
+}
+.field.field-hidden .field-header { border-bottom: none; }
+.drag-handle {
+  color: #c0c0be;
+  font-size: 13px;
+  cursor: grab;
+  flex-shrink: 0;
+  touch-action: none;
+}
+.field-header label {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 500;
+  color: #37352f;
+}
+.type-badge {
+  font-size: 10px;
+  color: #9b9a97;
+  font-weight: 400;
+  margin-left: 3px;
+}
+.field-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9b9a97;
+  font-size: 14px;
+  padding: 2px 4px;
+  flex-shrink: 0;
+  min-width: 28px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.field-body {
+  padding: 8px 10px;
+  display: block;
+}
+.field.field-hidden .field-body { display: none; }
+
+/* 入力要素 */
+input[type="text"],
+input[type="password"],
+input[type="url"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="date"],
+textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #e9e9e7;
+  border-radius: 6px;
+  font-size: 16px; /* iOS zoom防止 */
+  outline: none;
+  background: #fff;
+  color: #37352f;
+  font-family: inherit;
+}
+textarea { min-height: 80px; resize: vertical; }
+input:focus, textarea:focus { border-color: #2383e2; }
+
+/* URL行 */
+.url-input-row { display: flex; gap: 8px; align-items: center; }
+.url-input-row input { flex: 1; }
+.url-blank-label { font-size: 12px; color: #787774; white-space: nowrap; cursor: pointer; }
+.clip-check { width: 15px; height: 15px; accent-color: #2383e2; cursor: pointer; flex-shrink: 0; }
+
+/* 日付行 */
+.date-row { display: flex; gap: 8px; align-items: center; }
+.date-row input[type="date"] { flex: 1; font-size: 14px; }
+.date-today-label { font-size: 12px; color: #787774; white-space: nowrap; cursor: pointer; }
+
+/* チェックボックス */
+.checkbox-field { display: flex; align-items: center; gap: 8px; }
+.checkbox-field input { width: 18px; height: 18px; accent-color: #2383e2; }
+.checkbox-field span { font-size: 14px; }
+
+/* セレクト */
+.select-options { display: flex; flex-wrap: wrap; gap: 5px; }
+.opt-chip {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  border: 1px solid #e9e9e7;
+  cursor: pointer;
+  background: #f7f7f5;
+  color: #37352f;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+}
+.opt-chip.selected { color: #fff; border-color: transparent; }
+.color-default.selected { background: #9b9a97; }
+.color-gray.selected { background: #9b9a97; }
+.color-brown.selected { background: #64473a; }
+.color-orange.selected { background: #d9730d; }
+.color-yellow.selected { background: #dfab01; }
+.color-green.selected { background: #0f7b6c; }
+.color-blue.selected { background: #0b6e99; }
+.color-purple.selected { background: #6940a5; }
+.color-pink.selected { background: #ad1a72; }
+.color-red.selected { background: #e03e3e; }
+
+/* ドラッグ中 */
+.field.dragging { opacity: 0.4; }
+.field.drag-over { border-color: #2383e2; }
+
+/* ========== フッター ========== */
+.app-footer {
+  flex-shrink: 0;
+  border-top: 1px solid #e9e9e7;
+  padding: 8px 12px;
+  background: #fff;
+}
+.footer-btns { display: flex; gap: 8px; }
+.btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  min-height: 44px;
+}
+.btn-primary { background: #2383e2; color: #fff; }
+.btn-primary:active { background: #1a6fc0; }
+.btn-primary:disabled { background: #a0c3e8; cursor: not-allowed; }
+.btn-secondary { background: #f0f0ef; color: #37352f; }
+.btn-secondary:active { background: #e0e0de; }
+.btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ステータスバー */
+.status-bar {
+  font-size: 13px;
+  padding: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s, padding 0.2s;
+  border-radius: 5px;
+  margin-bottom: 0;
+}
+.status-bar.success { background: #e6f4e6; color: #2d7a2d; padding: 6px 10px; max-height: 60px; margin-bottom: 6px; }
+.status-bar.error { background: #fce8e8; color: #c0392b; padding: 6px 10px; max-height: 60px; margin-bottom: 6px; }
+.status-bar.loading { background: #e8f0fe; color: #1a6fc0; padding: 6px 10px; max-height: 60px; margin-bottom: 6px; }
+
+/* ========== 設定ビュー ========== */
+.settings-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px;
+}
+.section {
+  background: #fff;
+  border: 1px solid #e9e9e7;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.section h2 { font-size: 15px; margin-bottom: 12px; color: #37352f; }
+.section label { display: block; font-size: 13px; color: #787774; margin-bottom: 6px; }
+.section input[type="text"],
+.section input[type="password"],
+.section input[type="number"] { font-size: 14px; }
+.input-row { display: flex; gap: 8px; align-items: flex-end; }
+.input-row input { flex: 1; }
+.save-row { margin-top: 12px; display: flex; justify-content: flex-end; }
+.hint { font-size: 12px; color: #9b9a97; margin-top: 6px; }
+.status-msg { font-size: 13px; padding: 6px 10px; border-radius: 6px; margin-top: 10px; display: none; }
+.status-msg.success { background: #e6f4e6; color: #2d7a2d; display: block; }
+.status-msg.error { background: #fce8e8; color: #c0392b; display: block; }
+.status-msg.info { background: #e8f0fe; color: #1a6fc0; display: block; }
+
+/* DB一覧 */
+.db-card { margin-bottom: 8px; }
+.db-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid #e9e9e7;
+  border-radius: 6px 6px 0 0;
+  border-bottom: none;
+  gap: 8px;
+  font-size: 14px;
+}
+.db-enable { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; cursor: pointer; }
+.db-enable input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #2383e2; }
+.db-enable-label { font-size: 10px; color: #9b9a97; white-space: nowrap; }
+.db-info { flex: 1; min-width: 0; }
+.db-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.db-id { font-size: 11px; color: #9b9a97; margin-top: 2px; font-family: monospace; }
+.db-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.btn-sm { padding: 5px 10px; font-size: 12px; min-height: 32px; flex: none; }
+.db-ai-row {
+  border: 1px solid #e9e9e7;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  padding: 8px 12px;
+  background: #f7f7f5;
+}
+.db-ai-label { font-size: 11px; color: #9b9a97; display: block; margin-bottom: 4px; }
+.db-ai-hint { font-size: 10px; color: #c0c0be; }
+.db-ai-textarea {
+  width: 100%;
+  min-height: 52px;
+  padding: 6px 8px;
+  border: 1px solid #e9e9e7;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: monospace;
+  background: #fff;
+  resize: vertical;
+  outline: none;
+}
+.db-ai-textarea:focus { border-color: #2383e2; }
+.empty-state { text-align: center; padding: 16px; color: #9b9a97; font-size: 14px; }
+
+/* DB取得パネル */
+.fetch-row { display: flex; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+#api-db-panel { display: none; margin-top: 12px; }
+#api-db-panel.visible { display: block; }
+.search-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #e9e9e7;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  margin-bottom: 8px;
+}
+.search-input:focus { border-color: #2383e2; }
+#api-db-list {
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #e9e9e7;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+.api-db-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0ef;
+  cursor: pointer;
+}
+.api-db-item:last-child { border-bottom: none; }
+.api-db-item:active { background: #f7f7f5; }
+.api-db-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #2383e2; flex-shrink: 0; }
+.api-db-item label { font-size: 13px; cursor: pointer; flex: 1; margin-bottom: 0; color: #37352f; }
+.api-db-id { font-size: 11px; color: #9b9a97; font-family: monospace; }
+.panel-actions { display: flex; justify-content: space-between; align-items: center; }
+.select-all-row { font-size: 12px; color: #787774; cursor: pointer; user-select: none; padding: 4px 0; }
+
+/* 手動追加 */
+details { margin-top: 12px; }
+details summary { font-size: 13px; color: #787774; cursor: pointer; user-select: none; padding: 6px 0; }
+details .manual-body { margin-top: 10px; }
+
+/* 履歴 */
+.history-item-wrapper { display: flex; align-items: center; gap: 4px; }
+.history-item {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0ef;
+  text-decoration: none;
+  color: #37352f;
+  font-size: 13px;
+}
+.history-item:last-of-type { border-bottom: none; }
+.history-item-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history-item-db { font-size: 10px; color: #9b9a97; white-space: nowrap; flex-shrink: 0; }
+.history-saved-badge { font-size: 9px; color: #2d7a2d; background: #e6f4e6; padding: 1px 4px; border-radius: 8px; white-space: nowrap; flex-shrink: 0; }
+.history-del-btn { background: none; border: none; color: #c0c0be; cursor: pointer; font-size: 16px; padding: 4px; flex-shrink: 0; min-width: 28px; }
+.history-del-btn:active { color: #eb5757; }
+.history-empty { font-size: 13px; color: #c0c0be; padding: 8px 0; }
+
+/* ダイアログ */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.dialog-overlay.hidden { display: none; }
+.dialog-box {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  width: min(320px, 90vw);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+.dialog-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+.dialog-box input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #e9e9e7;
+  border-radius: 6px;
+  font-size: 16px;
+  outline: none;
+  margin-bottom: 14px;
+}
+.dialog-box input:focus { border-color: #2383e2; }
+.dialog-btns { display: flex; gap: 8px; }
+.dialog-btns .btn { min-height: 40px; }
+
+/* AI ボタン共通 */
+.ai-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border: 1px solid #e9e9e7;
+  border-radius: 5px;
+  background: #f7f7f5;
+  cursor: pointer;
+  color: #37352f;
+  margin-top: 5px;
+  min-height: 30px;
+}
+.ai-btn:active { background: #e0e0de; }
+.ai-btn:disabled { opacity: 0.5; cursor: not-allowed; }
