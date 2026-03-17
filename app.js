@@ -32,6 +32,7 @@ let currentSortedProperties = [];
 let currentUiState = { blank: {}, today: {} };
 let allDatabases = [];
 let allFetchedDbs = [];
+let dragDropController = null;
 
 const BODY_PSEUDO = { name: '__body', type: '__body' };
 const DEFAULT_AI_PROMPT = '以下のページを要約してください。\n\nタイトル: {{title}}\nURL: {{url}}\n\n{{body}}';
@@ -523,6 +524,10 @@ function getPageContext() {
 
 // ========== フィールドD&D（Pointer Events で touch 対応） ==========
 function setupDragAndDrop(area) {
+  if (dragDropController) dragDropController.abort();
+  dragDropController = new AbortController();
+  const signal = dragDropController.signal;
+
   let dragSrcEl = null;
   let dragHandle = null;
   let placeholder = null;
@@ -539,14 +544,14 @@ function setupDragAndDrop(area) {
     startY = e.clientY;
 
     e.preventDefault();
-    dragSrcEl.setPointerCapture(e.pointerId);
+    area.setPointerCapture(e.pointerId);
 
     placeholder = document.createElement('div');
     placeholder.style.cssText = `height:${dragSrcEl.offsetHeight}px;border:2px dashed #2383e2;border-radius:6px;margin-bottom:10px;`;
     dragSrcEl.classList.add('dragging');
     dragSrcEl.after(placeholder);
     dragSrcEl.style.cssText = `position:fixed;width:${dragSrcEl.offsetWidth}px;z-index:50;opacity:0.9;left:${dragSrcEl.getBoundingClientRect().left}px;top:${dragSrcEl.getBoundingClientRect().top}px;`;
-  });
+  }, { signal });
 
   area.addEventListener('pointermove', (e) => {
     if (!dragSrcEl) return;
@@ -568,7 +573,7 @@ function setupDragAndDrop(area) {
       }
     }
     if (!inserted) area.appendChild(placeholder);
-  });
+  }, { signal });
 
   area.addEventListener('pointerup', async (e) => {
     if (!dragSrcEl) return;
@@ -599,7 +604,7 @@ function setupDragAndDrop(area) {
 
     dragSrcEl = null;
     dragHandle = null;
-  });
+  }, { signal });
 }
 
 // ========== フィールド表示切り替え ==========
