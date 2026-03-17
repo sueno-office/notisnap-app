@@ -824,6 +824,7 @@ async function submitToNotion() {
       if (hist.length > 50) hist.splice(50);
       await storage.set({ saveHistory: hist });
       showStatus('Notionに追加しました！', 'success');
+      await clearForm();
     }
   } catch (e) {
     showStatus(`通信エラー: ${e.message}`, 'error');
