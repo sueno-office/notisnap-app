@@ -130,8 +130,8 @@ async function loadDb(dbId, presetName = null) {
   }
 
   const allProps = [...currentDb.properties, BODY_PSEUDO];
-  const order = propertyOrder[dbId];
-  if (order && order.length > 0) {
+  const order = [...new Set(propertyOrder[dbId] || [])];
+  if (order.length > 0) {
     const sorted = order.map(name => allProps.find(p => p.name === name)).filter(Boolean);
     const remaining = allProps.filter(p => !order.includes(p.name));
     currentSortedProperties = [...sorted, ...remaining];
@@ -1106,7 +1106,7 @@ async function renderSettingsDbList(databases) {
   const sorted = [...databases].sort((a, b) => a.name.localeCompare(b.name, 'ja'));
   list.innerHTML = sorted.map(db => {
     const allProps = [...(db.properties || []), BODY_PSEUDO];
-    const order = propertyOrder[db.id] || [];
+    const order = [...new Set(propertyOrder[db.id] || [])];
     const sortedProps = order.length > 0
       ? [...order.map(n => allProps.find(p => p.name === n)).filter(Boolean),
          ...allProps.filter(p => !order.includes(p.name))]
