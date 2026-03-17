@@ -1090,14 +1090,36 @@ function renderApiDbList(dbs, query) {
   `).join('');
 }
 
-function renderSettingsDbList(databases) {
+async function renderSettingsDbList(databases) {
   const list = document.getElementById('s-db-list');
   if (!databases || databases.length === 0) {
     list.innerHTML = '<div class="empty-state">Databaseがまだ追加されていません</div>';
     return;
   }
+  const { propertyOrder = {} } = await storage.get('propertyOrder');
   const sorted = [...databases].sort((a, b) => a.name.localeCompare(b.name, 'ja'));
-  list.innerHTML = sorted.map(db => `
+  list.innerHTML = sorted.map(db => {
+    const allProps = [...(db.properties || []), BODY_PSEUDO];
+    const order = propertyOrder[db.id] || [];
+    const sortedProps = order.length > 0
+      ? [...order.map(n => allProps.find(p => p.name === n)).filter(Boolean),
+         ...allProps.filter(p => !order.includes(p.name))]
+      : allProps;
+    const propOrderHtml = sortedProps.length > 0 ? `
+      <details class="prop-order-section">
+        <summary class="prop-order-summary">プロパティの順序（${sortedProps.length}件）</summary>
+        <div class="prop-order-list" data-db-id="${db.id}">
+          ${sortedProps.map(p => `
+            <div class="prop-order-item" data-name="${escapeHtml(p.name)}">
+              <span class="prop-order-handle">≡</span>
+              <span class="prop-order-name">${escapeHtml(p.name)}</span>
+              <span class="type-badge">${escapeHtml(p.type)}</span>
+            </div>
+          `).join('')}
+        </div>
+      </details>
+    ` : '';
+    return `
     <div class="db-card">
       <div class="db-item">
         <label class="db-enable">
@@ -1117,8 +1139,10 @@ function renderSettingsDbList(databases) {
         <label class="db-ai-label">AIプロンプト <span class="db-ai-hint">（{{title}} {{url}} {{body}} が使えます）</span></label>
         <textarea class="db-ai-textarea" data-id="${db.id}" placeholder="${escapeHtml(DEFAULT_AI_PROMPT)}">${escapeHtml(db.aiPrompt || '')}</textarea>
       </div>
+      ${propOrderHtml}
     </div>
-  `).join('');
+  `;
+  }).join('');
 
   list.querySelectorAll('.db-enable-check').forEach(check => {
     check.addEventListener('change', async () => {
@@ -1171,6 +1195,58 @@ function renderSettingsDbList(databases) {
       await storage.set({ databases: dbs });
       renderSettingsDbList(dbs);
     });
+  });
+
+  list.querySelectorAll('.prop-order-list').forEach(setupPropOrderDrag);
+}
+
+function setupPropOrderDrag(listEl) {
+  const dbId = listEl.dataset.dbId;
+  let dragSrc = null, placeholder = null, startY = 0;
+
+  listEl.addEventListener('pointerdown', e => {
+    const handle = e.target.closest('.prop-order-handle');
+    if (!handle) return;
+    dragSrc = handle.closest('.prop-order-item');
+    if (!dragSrc) return;
+    startY = e.clientY;
+    e.preventDefault();
+    listEl.setPointerCapture(e.pointerId);
+    dragSrc.classList.add('dragging');
+    placeholder = document.createElement('div');
+    placeholder.className = 'prop-order-placeholder';
+    dragSrc.after(placeholder);
+    const rect = dragSrc.getBoundingClientRect();
+    dragSrc.style.cssText = `position:fixed;width:${dragSrc.offsetWidth}px;z-index:50;opacity:0.9;left:${rect.left}px;top:${rect.top}px;background:#fff;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.15);padding:8px 12px;`;
+  });
+
+  listEl.addEventListener('pointermove', e => {
+    if (!dragSrc) return;
+    e.preventDefault();
+    const dy = e.clientY - startY;
+    dragSrc.style.top = (parseFloat(dragSrc.style.top) + dy) + 'px';
+    startY = e.clientY;
+    const items = [...listEl.querySelectorAll('.prop-order-item:not(.dragging)')];
+    let inserted = false;
+    for (const item of items) {
+      const r = item.getBoundingClientRect();
+      if (e.clientY < r.top + r.height / 2) { listEl.insertBefore(placeholder, item); inserted = true; break; }
+    }
+    if (!inserted) listEl.appendChild(placeholder);
+  });
+
+  listEl.addEventListener('pointerup', async () => {
+    if (!dragSrc) return;
+    dragSrc.style.cssText = '';
+    dragSrc.classList.remove('dragging');
+    listEl.insertBefore(dragSrc, placeholder);
+    placeholder.remove();
+    placeholder = null;
+    const newOrder = [...listEl.querySelectorAll('.prop-order-item')].map(el => el.dataset.name);
+    const { propertyOrder = {} } = await storage.get('propertyOrder');
+    propertyOrder[dbId] = newOrder;
+    await storage.set({ propertyOrder });
+    dragSrc = null;
   });
 }
 
